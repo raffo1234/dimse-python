@@ -2,9 +2,11 @@
 from flask import Flask, request, jsonify
 from pynetdicom import AE, build_context, VerificationPresentationContexts
 from pynetdicom.pdu import A_ASSOCIATE_RQ
+from flask_cors import CORS
 import os
 
 app = Flask(__name__)
+CORS(app) # This will enable CORS for all routes
 port = os.environ.get('PORT', 5000)  # Default port for Render.com
 
 @app.route('/ping', methods=['POST'])

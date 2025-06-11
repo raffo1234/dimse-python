@@ -1,3 +1,4 @@
 Flask
 pydicom==3.0.1
 pynetdicom
+Flask-CORS
