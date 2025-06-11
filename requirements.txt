@@ -1,2 +1,3 @@
 Flask
-pydicom
+pydicom==3.0.1
+pynetdicom

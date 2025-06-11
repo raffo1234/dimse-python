@@ -1,6 +1,7 @@
 # app.py
 from flask import Flask, request, jsonify
-from pydicom import dcmnet
+from pynetdicom import AE, build_context, VerificationPresentationContexts
+from pynetdicom.pdu import A_ASSOCIATE_RQ
 import os
 
 app = Flask(__name__)
@@ -17,23 +18,24 @@ def ping_dicom():
     aet_server = data['aet_server']
     aet_client = data.get('aet_client', 'MY_CLIENT_AE')
 
-    ae = dcmnet.AE(ae_title=aet_client)
-    assoc = None
-    try:
-        assoc = ae.associate(ip, port_number, aet_server)
-        if assoc.is_established:
-            status = assoc.send_c_echo()
-            if status:
-                return jsonify({'ok': True, 'status': True, 'message': f'Successfully Echoed to {aet_server}@{ip}:{port_number}'})
-            else:
-                return jsonify({'ok': False, 'error': 'Echo failed'}), 500
+    # Create application entity
+    ae = AE(ae_title=aet_client)
+
+    # Add a verification presentation context
+    ae.add_supported_context(VerificationPresentationContexts.Verification)
+
+    # Associate with peer AE
+    assoc = ae.associate(ip, port_number, aet_server, ae_title=aet_server)  # Target AE title might be needed
+
+    if assoc.is_established:
+        status = assoc.send_c_echo()
+        if status:
+            return jsonify({'ok': True, 'status': True, 'message': f'Successfully Echoed to {aet_server}@{ip}:{port_number}'})
         else:
-            return jsonify({'ok': False, 'error': 'Association failed'}), 500
-    except Exception as e:
-        return jsonify({'ok': False, 'error': str(e)}), 500
-    finally:
-        if assoc and assoc.is_established:
-            assoc.release()
+            return jsonify({'ok': False, 'error': 'Echo failed'}), 500
+        assoc.release()
+    else:
+        return jsonify({'ok': False, 'error': f'Association failed: {assoc.reason_str}'}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=port, debug=False)
