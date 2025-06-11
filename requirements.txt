@@ -1,4 +1,4 @@
 Flask
 pydicom==3.0.1
-pynetdicom
+pynetdicom==3.0.1
 Flask-CORS

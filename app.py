@@ -1,13 +1,12 @@
-# app.py
 from flask import Flask, request, jsonify
-from pynetdicom import AE, build_context, VerificationPresentationContexts
-from pynetdicom.pdu import A_ASSOCIATE_RQ
-from flask_cors import CORS
+from pynetdicom import AE, build_context
+from pynetdicom.sop_class import Verification
 import os
+from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app) # This will enable CORS for all routes
-port = os.environ.get('PORT', 5000)  # Default port for Render.com
+CORS(app, origins=["https://cadia.pe", "http://localhost:3000"])
+port = os.environ.get('PORT', 5000)
 
 @app.route('/ping', methods=['POST'])
 def ping_dicom():
@@ -23,11 +22,14 @@ def ping_dicom():
     # Create application entity
     ae = AE(ae_title=aet_client)
 
-    # Add a verification presentation context
-    ae.add_supported_context(VerificationPresentationContexts.Verification)
+    # Create a Verification presentation context
+    context = build_context(Verification)
+
+    # Add the presentation context to the AE's requested contexts
+    ae.requested_contexts.append(context)
 
     # Associate with peer AE
-    assoc = ae.associate(ip, port_number, aet_server, ae_title=aet_server)  # Target AE title might be needed
+    assoc = ae.associate(ip, port_number, aet_server, ae_title=aet_server)
 
     if assoc.is_established:
         status = assoc.send_c_echo()
