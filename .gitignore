@@ -17,7 +17,7 @@ docker-compose.override.yml
 docker-compose.yml
 .dockerenv
 .dockerignore
-dockerfile
+
 
 # Render.com specific (if any)
 .render-build.sh
