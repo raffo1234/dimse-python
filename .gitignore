@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.python-version
+venv/
+env/
+*.egg-info
+.venv
+*.so
+
+# Docker
+*/__pycache__
+**/__pycache__
+docker-compose.override.yml
+docker-compose.yml
+.dockerenv
+.dockerignore
+dockerfile
+
+# Render.com specific (if any)
+.render-build.sh
+.render-deploy.sh
+
+# General
+.DS_Store
+.env
+*.log
